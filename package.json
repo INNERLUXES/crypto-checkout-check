@@ -1,0 +1,51 @@
+{
+  "name": "crypto-checkout-check",
+  "version": "1.0.0",
+  "description": "Crypto checkout check: reads the JSON configuration of a crypto payment gateway or checkout before it goes live (for each accepted asset the network, native or token, the token contract or mint and its decimals, the confirmations or commitment that mark an invoice paid, the largest invoice and the deposit address policy; the invoice expiry, the time a quoted rate is held and the under- and overpayment tolerances; the webhook URL, signature, secret reference, replay window, idempotency key and retries; and the refunds), contacts no chain, RPC or webhook, fetches nothing and runs nothing, and lists with file and line the settings that lose payments or count them twice: too few confirmations, a Solana commitment below finalized, large payments marked paid before finality, a USDC contract or decimals that are not the ones Circle lists, shared deposit addresses with no memo, invoices that expire before they can be paid, webhooks that are not https, unsigned, weakly signed, open to replay or with no idempotency key or retries, an inline webhook secret, and refunds sent back to the sender or with no review. Text, markdown, JSON and SARIF output, exit codes for a pipeline, no dependencies.",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "bin": {
+    "crypto-checkout-check": "bin/crypto-checkout-check.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "docs",
+    "examples",
+    "research",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test \"test/*.test.js\"",
+    "test:coverage": "node --test --experimental-test-coverage \"test/*.test.js\"",
+    "check": "node tools/check.mjs",
+    "example": "node tools/example.mjs"
+  },
+  "keywords": [
+    "crypto-payments",
+    "payment-gateway",
+    "checkout",
+    "blockchain",
+    "confirmations",
+    "webhooks",
+    "stablecoin",
+    "usdc",
+    "static-analysis",
+    "sarif",
+    "cli"
+  ],
+  "author": "INNERLUXES <info@innerluxes.dev>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/INNERLUXES/crypto-checkout-check.git"
+  },
+  "homepage": "https://innerluxes.dev/blockchain/payments"
+}
