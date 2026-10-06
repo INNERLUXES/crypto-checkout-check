@@ -1,0 +1,105 @@
+{
+  "checkout": "Harbor Example Store",
+  "currency": "USD",
+  "notes": "A made-up configuration for the examples of crypto-checkout-check that passes at error and warning level. Every address is made up and is not a real contract, except the USDC addresses copied from the saved copy of Circle's page, and the file holds no key and no seed.",
+  "assets": [
+    {
+      "name": "BTC",
+      "network": "bitcoin",
+      "kind": "native",
+      "decimals": 8,
+      "confirmations": 6,
+      "maxAmount": 25000,
+      "depositAddress": "per-invoice"
+    },
+    {
+      "name": "ETH",
+      "network": "ethereum",
+      "kind": "native",
+      "decimals": 18,
+      "commitment": "finalized",
+      "maxAmount": 25000,
+      "depositAddress": "per-invoice"
+    },
+    {
+      "name": "USDC",
+      "network": "ethereum",
+      "kind": "token",
+      "contract": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      "decimals": 6,
+      "commitment": "finalized",
+      "maxAmount": 25000,
+      "depositAddress": "per-invoice"
+    },
+    {
+      "name": "USDC",
+      "network": "base",
+      "kind": "token",
+      "contract": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "decimals": 6,
+      "confirmations": 12,
+      "maxAmount": 1000,
+      "depositAddress": "per-invoice"
+    },
+    {
+      "name": "USDC",
+      "network": "polygon",
+      "kind": "token",
+      "contract": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+      "decimals": 6,
+      "commitment": "finalized",
+      "maxAmount": 25000,
+      "depositAddress": "per-invoice"
+    },
+    {
+      "name": "USDC",
+      "network": "solana",
+      "kind": "token",
+      "contract": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      "decimals": 6,
+      "commitment": "finalized",
+      "maxAmount": 25000,
+      "depositAddress": "shared",
+      "reference": "reference-key"
+    },
+    {
+      "name": "USDT",
+      "network": "tron",
+      "kind": "token",
+      "contract": "THHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+      "decimals": 6,
+      "confirmations": 19,
+      "maxAmount": 1000,
+      "depositAddress": "per-invoice"
+    },
+    {
+      "name": "LTC",
+      "network": "litecoin",
+      "kind": "native",
+      "decimals": 8,
+      "confirmations": 6,
+      "maxAmount": 1000,
+      "depositAddress": "per-invoice"
+    }
+  ],
+  "invoice": {
+    "expirySeconds": 900,
+    "expiryRequires": "detected",
+    "rateLockSeconds": 900,
+    "underpaymentTolerance": 0.5,
+    "overpaymentTolerance": 1
+  },
+  "webhook": {
+    "url": "https://harbor.example/hooks/payments",
+    "secretRef": "env:CHECKOUT_WEBHOOK_SECRET",
+    "signature": "hmac-sha256",
+    "timestampTolerance": 300,
+    "idempotencyKey": "event.id",
+    "retry": { "maxAttempts": 12, "backoff": "exponential" }
+  },
+  "refunds": {
+    "enabled": true,
+    "destination": "customer-provided",
+    "review": true
+  }
+}

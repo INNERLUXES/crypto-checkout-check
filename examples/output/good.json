@@ -1,0 +1,336 @@
+{
+  "tool": "crypto-checkout-check",
+  "version": "1.0.0",
+  "input": {
+    "file": "examples/good/checkout.json",
+    "bytes": 2858,
+    "lines": 105
+  },
+  "checkout": {
+    "name": "Harbor Example Store",
+    "currency": "USD",
+    "assets": 8,
+    "networks": [
+      "bitcoin",
+      "ethereum",
+      "base",
+      "polygon",
+      "solana",
+      "tron",
+      "litecoin"
+    ],
+    "expiry": "900 seconds (15 minutes)",
+    "webhook": {
+      "scheme": "https",
+      "signature": "hmac-sha256"
+    }
+  },
+  "totals": {
+    "findings": 1,
+    "byLevel": {
+      "error": 0,
+      "warning": 0,
+      "info": 1
+    },
+    "hidden": 0
+  },
+  "rules": [
+    {
+      "id": "config-unreadable",
+      "level": "error",
+      "kind": "input",
+      "findings": 0
+    },
+    {
+      "id": "field-missing",
+      "level": "error",
+      "kind": "input",
+      "findings": 0
+    },
+    {
+      "id": "field-unknown",
+      "level": "warning",
+      "kind": "input",
+      "findings": 0
+    },
+    {
+      "id": "field-invalid",
+      "level": "error",
+      "kind": "input",
+      "findings": 0
+    },
+    {
+      "id": "asset-duplicate",
+      "level": "error",
+      "kind": "input",
+      "findings": 0
+    },
+    {
+      "id": "secret-in-config",
+      "level": "error",
+      "kind": "input",
+      "findings": 0
+    },
+    {
+      "id": "confirmations-below-documented",
+      "level": "error",
+      "kind": "documented",
+      "findings": 0
+    },
+    {
+      "id": "confirmations-below-default",
+      "level": "warning",
+      "kind": "best practice",
+      "findings": 0
+    },
+    {
+      "id": "solana-commitment-processed",
+      "level": "error",
+      "kind": "documented",
+      "findings": 0
+    },
+    {
+      "id": "solana-commitment-confirmed",
+      "level": "warning",
+      "kind": "documented",
+      "findings": 0
+    },
+    {
+      "id": "paid-before-finality",
+      "level": "warning",
+      "kind": "documented",
+      "findings": 0
+    },
+    {
+      "id": "evm-paid-before-finality",
+      "level": "warning",
+      "kind": "best practice",
+      "findings": 0
+    },
+    {
+      "id": "token-contract-missing",
+      "level": "error",
+      "kind": "documented",
+      "findings": 0
+    },
+    {
+      "id": "token-contract-malformed",
+      "level": "error",
+      "kind": "best practice",
+      "findings": 0
+    },
+    {
+      "id": "token-contract-not-official",
+      "level": "error",
+      "kind": "documented",
+      "findings": 0
+    },
+    {
+      "id": "token-decimals-mismatch",
+      "level": "error",
+      "kind": "documented",
+      "findings": 0
+    },
+    {
+      "id": "deposit-address-shared",
+      "level": "error",
+      "kind": "best practice",
+      "findings": 0
+    },
+    {
+      "id": "invoice-expiry-missing",
+      "level": "error",
+      "kind": "documented",
+      "findings": 0
+    },
+    {
+      "id": "invoice-expiry-below-confirmation-time",
+      "level": "warning",
+      "kind": "documented",
+      "findings": 0
+    },
+    {
+      "id": "rate-lock-exceeds-expiry",
+      "level": "warning",
+      "kind": "best practice",
+      "findings": 0
+    },
+    {
+      "id": "payment-tolerance-missing",
+      "level": "warning",
+      "kind": "best practice",
+      "findings": 0
+    },
+    {
+      "id": "webhook-not-https",
+      "level": "error",
+      "kind": "documented",
+      "findings": 0
+    },
+    {
+      "id": "webhook-unsigned",
+      "level": "error",
+      "kind": "documented",
+      "findings": 0
+    },
+    {
+      "id": "webhook-weak-signature",
+      "level": "error",
+      "kind": "documented",
+      "findings": 0
+    },
+    {
+      "id": "webhook-replay-unprotected",
+      "level": "warning",
+      "kind": "documented",
+      "findings": 0
+    },
+    {
+      "id": "webhook-idempotency-missing",
+      "level": "error",
+      "kind": "documented",
+      "findings": 0
+    },
+    {
+      "id": "webhook-retry-missing",
+      "level": "warning",
+      "kind": "documented",
+      "findings": 0
+    },
+    {
+      "id": "refund-to-sender",
+      "level": "warning",
+      "kind": "documented",
+      "findings": 0
+    },
+    {
+      "id": "refund-address-unreviewed",
+      "level": "warning",
+      "kind": "best practice",
+      "findings": 0
+    },
+    {
+      "id": "network-not-in-table",
+      "level": "info",
+      "kind": "best practice",
+      "findings": 1
+    }
+  ],
+  "config": {
+    "minSeverity": "info",
+    "failOn": "error",
+    "largePayment": "1000",
+    "minConfirmations": {}
+  },
+  "findings": [
+    {
+      "id": "network-not-in-table",
+      "severity": "info",
+      "message": "The network \"litecoin\" of asset LTC on litecoin is not in the tool's table (bitcoin, ethereum, polygon, arbitrum, base, solana, tron), so what marks a payment on it as final and the form of its token addresses were not judged. This is a best practice of this tool, not a rule in the pages it cites.",
+      "file": "examples/good/checkout.json",
+      "line": 77,
+      "column": 7,
+      "at": "examples/good/checkout.json:77",
+      "entry": "LTC on litecoin",
+      "fix": "Check by hand what marks a payment on the network as final and how its token addresses are written, or name the network as the table does (docs/inputs.md).",
+      "kind": "best practice"
+    }
+  ],
+  "table": [
+    {
+      "asset": "BTC",
+      "network": "bitcoin",
+      "kind": "native",
+      "decimals": 8,
+      "paidAt": "6 conf",
+      "toPaid": "3,600 seconds (1 hour)",
+      "maxAmount": "25000",
+      "deposit": "per-invoice",
+      "contract": null
+    },
+    {
+      "asset": "ETH",
+      "network": "ethereum",
+      "kind": "native",
+      "decimals": 18,
+      "paidAt": "finalized",
+      "toPaid": "768 seconds",
+      "maxAmount": "25000",
+      "deposit": "per-invoice",
+      "contract": null
+    },
+    {
+      "asset": "USDC",
+      "network": "ethereum",
+      "kind": "token",
+      "decimals": 6,
+      "paidAt": "finalized",
+      "toPaid": "768 seconds",
+      "maxAmount": "25000",
+      "deposit": "per-invoice",
+      "contract": "official"
+    },
+    {
+      "asset": "USDC",
+      "network": "base",
+      "kind": "token",
+      "decimals": 6,
+      "paidAt": "12 conf",
+      "toPaid": "24 seconds",
+      "maxAmount": "1000",
+      "deposit": "per-invoice",
+      "contract": "official"
+    },
+    {
+      "asset": "USDC",
+      "network": "polygon",
+      "kind": "token",
+      "decimals": 6,
+      "paidAt": "finalized",
+      "toPaid": null,
+      "maxAmount": "25000",
+      "deposit": "per-invoice",
+      "contract": "official"
+    },
+    {
+      "asset": "USDC",
+      "network": "solana",
+      "kind": "token",
+      "decimals": 6,
+      "paidAt": "finalized",
+      "toPaid": "12.8 seconds",
+      "maxAmount": "25000",
+      "deposit": "shared, reference-key",
+      "contract": "official"
+    },
+    {
+      "asset": "USDT",
+      "network": "tron",
+      "kind": "token",
+      "decimals": 6,
+      "paidAt": "19 conf",
+      "toPaid": "57 seconds",
+      "maxAmount": "1000",
+      "deposit": "per-invoice",
+      "contract": "form only"
+    },
+    {
+      "asset": "LTC",
+      "network": "litecoin",
+      "kind": "native",
+      "decimals": 8,
+      "paidAt": "6 conf",
+      "toPaid": null,
+      "maxAmount": "1000",
+      "deposit": "per-invoice",
+      "contract": null
+    }
+  ],
+  "notes": [],
+  "notice": "This report is an input to a review before the checkout goes live: not a security audit and not a guarantee that no payment will be lost or counted twice.",
+  "result": {
+    "pass": true,
+    "failOn": "error",
+    "text": "PASS - no finding at or above error (1 info)"
+  }
+}

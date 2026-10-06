@@ -1,0 +1,398 @@
+Source: https://developers.circle.com/stablecoins/quickstart-transfer-10-usdc-on-solana
+Read as the markdown that developers.circle.com serves for the page at https://developers.circle.com/stablecoins/quickstart-transfer-10-usdc-on-solana.md and kept as it was read, less the lines that research/sources.md names; the page itself is the authority.
+
+# Quickstart: Transfer USDC on Solana
+
+> Transfer USDC between wallets on Solana Devnet using a Node.js script
+
+This guide demonstrates how to transfer USDC between two wallets on Solana
+Devnet using a Node.js script. You use the
+[Solana Kit](https://github.com/anza-xyz/kit) library to interact with the
+Solana blockchain and perform SPL token transfers.
+
+<Note>
+  All transactions in this guide take place on the Solana Devnet testnet. No real
+  funds are transferred. You can adapt this code for mainnet transactions by
+  changing the RPC endpoint and using mainnet contract addresses.
+</Note>
+
+## Prerequisites
+
+Before you start building the sample app to perform a USDC transfer, ensure you
+have:
+
+* **Node.js** and **npm** installed on your development machine. You can
+  [download and install Node.js directly](https://nodejs.org), or use a version
+  manager like [nvm](https://github.com/nvm-sh/nvm). The npm binary comes with
+  Node.js.
+* Created two Solana wallets: a sender wallet (with the private key available)
+  and a receiver wallet (you only need the public address).
+* Funded your sender wallet with the following testnet tokens:
+  * Solana Devnet SOL (native token) from a
+    [public faucet](https://faucet.solana.com/).
+  * Solana Devnet USDC from the [Circle Faucet](https://faucet.circle.com).
+
+## Part 1: Project setup
+
+Set up your project environment and install the required dependencies.
+
+### 1.1. Create a new project
+
+Create a new directory and initialize a new Node.js project with default
+settings:
+
+```shell Shell theme={null}
+mkdir solana-usdc-transfer
+cd solana-usdc-transfer
+npm init -y
+npm pkg set type=module
+```
+
+### 1.2. Install dependencies
+
+Install the required dependencies for Solana interactions:
+
+```shell Shell theme={null}
+npm install @solana/kit @solana-program/token ws dotenv
+```
+
+### 1.3. Configure environment variables
+
+Create a `.env` file in your project directory and add your wallet private key
+and the receiver address:
+
+```shell Shell theme={null}
+echo "SOLANA_PRIVATE_KEY=[your-solana-private-key-array]" > .env
+echo "RECEIVER_ADDRESS=your-receiver-wallet-address" >> .env
+```
+
+The `SOLANA_PRIVATE_KEY` should be a JSON array of bytes representing your
+private key. You can export this from most Solana wallets.
+
+<Accordion title="Converting Base58 private key to JSON array">
+  Some wallets export Solana private keys as Base58 encoded strings. If you have a
+  Base58 encoded private key, you can convert it to a JSON array with the
+  following Node.js script:
+
+  ```javascript JavaScript theme={null}
+  const fs = require("fs");
+  const bs58 = require("bs58");
+  const privateKeyBase58 = "YOUR_BASE58_PRIVATE_KEY";
+
+  try {
+    // Decode the Base58 string to a Uint8Array
+    const privateKeyBytes = bs58.decode(privateKeyBase58);
+
+    // The result is a Uint8Array. Convert it to a JSON array string.
+    const privateKeyJsonString = JSON.stringify(Array.from(privateKeyBytes));
+
+    console.log("JSON Array:", privateKeyJsonString);
+  } catch (error) {
+    console.error("Error converting key. Check if the Base58 key is valid.");
+  }
+  ```
+</Accordion>
+
+<Warning>
+  This is strictly for testing purposes. **Never share your private keys** or
+  commit them to version control.
+</Warning>
+
+## Part 2: Configure the script
+
+Define the configuration constants for interacting with Solana Devnet.
+
+### 2.1. Define configuration constants
+
+The script predefines the RPC endpoints, USDC mint address, and transfer
+parameters:
+
+```javascript JavaScript theme={null}
+import {
+  address,
+  createKeyPairSignerFromBytes,
+  createSolanaRpc,
+  createSolanaRpcSubscriptions,
+  createTransactionMessage,
+  getAddressEncoder,
+  getProgramDerivedAddress,
+  getSignatureFromTransaction,
+  pipe,
+  sendAndConfirmTransactionFactory,
+  setTransactionMessageFeePayerSigner,
+  setTransactionMessageLifetimeUsingBlockhash,
+  appendTransactionMessageInstruction,
+  signTransactionMessageWithSigners,
+} from "@solana/kit";
+import {
+  TOKEN_PROGRAM_ADDRESS,
+  getTransferInstruction,
+  findAssociatedTokenPda,
+} from "@solana-program/token";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+// Solana Devnet configuration
+const SOLANA_RPC = "https://api.devnet.solana.com";
+const SOLANA_WS = "wss://api.devnet.solana.com";
+const rpc = createSolanaRpc(SOLANA_RPC);
+const rpcSubscriptions = createSolanaRpcSubscriptions(SOLANA_WS);
+
+// Parse Solana keypair from environment variable
+const solanaPrivateKey = JSON.parse(process.env.SOLANA_PRIVATE_KEY);
+const senderKeypair = await createKeyPairSignerFromBytes(
+  Uint8Array.from(solanaPrivateKey),
+);
+
+// USDC Mint Address (Devnet)
+const USDC_MINT = address("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU");
+
+// Transfer parameters
+const RECEIVER_ADDRESS = address(process.env.RECEIVER_ADDRESS);
+const AMOUNT = 1_000_000n; // 1 USDC (6 decimals)
+```
+
+<Note>
+  USDC uses 6 decimal places. To transfer 1 USDC, you specify `1_000_000` (1 \*
+  10<sup>6</sup>) as the amount.
+</Note>
+
+## Part 3: Implement the transfer logic
+
+The following sections outline the core transfer logic for sending USDC on
+Solana.
+
+### 3.1. Get token accounts
+
+Derive the Associated Token Account (ATA) addresses for both the sender and
+receiver. These accounts are program-derived addresses that hold SPL tokens for
+a specific wallet:
+
+```javascript JavaScript theme={null}
+async function getTokenAccounts() {
+  // Derive sender's USDC token account
+  const [senderTokenAccount] = await findAssociatedTokenPda({
+    mint: USDC_MINT,
+    owner: senderKeypair.address,
+    tokenProgram: TOKEN_PROGRAM_ADDRESS,
+  });
+
+  // Derive receiver's USDC token account
+  const [receiverTokenAccount] = await findAssociatedTokenPda({
+    mint: USDC_MINT,
+    owner: RECEIVER_ADDRESS,
+    tokenProgram: TOKEN_PROGRAM_ADDRESS,
+  });
+
+  return { senderTokenAccount, receiverTokenAccount };
+}
+```
+
+### 3.2. Transfer USDC
+
+Build and send the transfer transaction using the SPL Token program's transfer
+instruction:
+
+```javascript JavaScript theme={null}
+async function transferUSDC() {
+  console.log("Transferring USDC on Solana Devnet...");
+  console.log(`From: ${senderKeypair.address}`);
+  console.log(`To: ${RECEIVER_ADDRESS}`);
+  console.log(`Amount: ${Number(AMOUNT) / 1_000_000} USDC`);
+
+  const { senderTokenAccount, receiverTokenAccount } = await getTokenAccounts();
+
+  // Create the transfer instruction
+  const transferInstruction = getTransferInstruction({
+    source: senderTokenAccount,
+    destination: receiverTokenAccount,
+    authority: senderKeypair,
+    amount: AMOUNT,
+  });
+
+  // Get the latest blockhash for transaction lifetime
+  const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
+
+  // Build the transaction message
+  const transactionMessage = pipe(
+    createTransactionMessage({ version: 0 }),
+    (tx) => setTransactionMessageFeePayerSigner(senderKeypair, tx),
+    (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
+    (tx) => appendTransactionMessageInstruction(transferInstruction, tx),
+  );
+
+  // Sign and send the transaction
+  const signedTransaction =
+    await signTransactionMessageWithSigners(transactionMessage);
+
+  const sendAndConfirmTransaction = sendAndConfirmTransactionFactory({
+    rpc,
+    rpcSubscriptions,
+  });
+
+  await sendAndConfirmTransaction(signedTransaction, {
+    commitment: "confirmed",
+  });
+
+  const signature = getSignatureFromTransaction(signedTransaction);
+  console.log(`\nTransaction successful!`);
+  console.log(`Signature: ${signature}`);
+  console.log(
+    `View on explorer: https://explorer.solana.com/tx/${signature}?cluster=devnet`,
+  );
+
+  return signature;
+}
+```
+
+## Part 4: Complete script
+
+Create a `transfer.js` file in your project directory and populate it with the
+complete code below.
+
+```javascript transfer.js expandable theme={null}
+import {
+  address,
+  createKeyPairSignerFromBytes,
+  createSolanaRpc,
+  createSolanaRpcSubscriptions,
+  createTransactionMessage,
+  getSignatureFromTransaction,
+  pipe,
+  sendAndConfirmTransactionFactory,
+  setTransactionMessageFeePayerSigner,
+  setTransactionMessageLifetimeUsingBlockhash,
+  appendTransactionMessageInstruction,
+  signTransactionMessageWithSigners,
+} from "@solana/kit";
+import {
+  TOKEN_PROGRAM_ADDRESS,
+  getTransferInstruction,
+  findAssociatedTokenPda,
+} from "@solana-program/token";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+// Solana Devnet configuration
+const SOLANA_RPC = "https://api.devnet.solana.com";
+const SOLANA_WS = "wss://api.devnet.solana.com";
+const rpc = createSolanaRpc(SOLANA_RPC);
+const rpcSubscriptions = createSolanaRpcSubscriptions(SOLANA_WS);
+
+// Parse Solana keypair from environment variable
+const solanaPrivateKey = JSON.parse(process.env.SOLANA_PRIVATE_KEY);
+const senderKeypair = await createKeyPairSignerFromBytes(
+  Uint8Array.from(solanaPrivateKey),
+);
+
+// USDC Mint Address (Devnet)
+const USDC_MINT = address("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU");
+
+// Transfer parameters
+const RECEIVER_ADDRESS = address(process.env.RECEIVER_ADDRESS);
+const AMOUNT = 1_000_000n; // 1 USDC (6 decimals)
+
+async function getTokenAccounts() {
+  // Derive sender's USDC token account
+  const [senderTokenAccount] = await findAssociatedTokenPda({
+    mint: USDC_MINT,
+    owner: senderKeypair.address,
+    tokenProgram: TOKEN_PROGRAM_ADDRESS,
+  });
+
+  // Derive receiver's USDC token account
+  const [receiverTokenAccount] = await findAssociatedTokenPda({
+    mint: USDC_MINT,
+    owner: RECEIVER_ADDRESS,
+    tokenProgram: TOKEN_PROGRAM_ADDRESS,
+  });
+
+  return { senderTokenAccount, receiverTokenAccount };
+}
+
+async function transferUSDC() {
+  console.log("Transferring USDC on Solana Devnet...");
+  console.log(`From: ${senderKeypair.address}`);
+  console.log(`To: ${RECEIVER_ADDRESS}`);
+  console.log(`Amount: ${Number(AMOUNT) / 1_000_000} USDC`);
+
+  const { senderTokenAccount, receiverTokenAccount } = await getTokenAccounts();
+
+  // Create the transfer instruction
+  const transferInstruction = getTransferInstruction({
+    source: senderTokenAccount,
+    destination: receiverTokenAccount,
+    authority: senderKeypair,
+    amount: AMOUNT,
+  });
+
+  // Get the latest blockhash for transaction lifetime
+  const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
+
+  // Build the transaction message
+  const transactionMessage = pipe(
+    createTransactionMessage({ version: 0 }),
+    (tx) => setTransactionMessageFeePayerSigner(senderKeypair, tx),
+    (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
+    (tx) => appendTransactionMessageInstruction(transferInstruction, tx),
+  );
+
+  // Sign and send the transaction
+  const signedTransaction =
+    await signTransactionMessageWithSigners(transactionMessage);
+
+  const sendAndConfirmTransaction = sendAndConfirmTransactionFactory({
+    rpc,
+    rpcSubscriptions,
+  });
+
+  await sendAndConfirmTransaction(signedTransaction, {
+    commitment: "confirmed",
+  });
+
+  const signature = getSignatureFromTransaction(signedTransaction);
+  console.log(`\nTransaction successful!`);
+  console.log(`Signature: ${signature}`);
+  console.log(
+    `View on explorer: https://explorer.solana.com/tx/${signature}?cluster=devnet`,
+  );
+
+  return signature;
+}
+
+transferUSDC().catch(console.error);
+```
+
+## Part 5: Test the script
+
+Run the following command to execute the script:
+
+```shell Shell theme={null}
+node transfer.js
+```
+
+Once the script runs and the transfer is finalized, a confirmation message is
+logged in the console:
+
+```text theme={null}
+Transferring USDC on Solana Devnet...
+From: YourSenderAddress
+To: YourReceiverAddress
+Amount: 1 USDC
+
+Transaction successful!
+Signature: 5abc123...
+View on explorer: https://explorer.solana.com/tx/5abc123...?cluster=devnet
+```
+
+You can verify the transaction by visiting the Solana Explorer link in the
+output, or by checking the USDC balance in the receiver's wallet.
+
+<Note>
+  If the receiver's wallet has never held USDC before, you may need to create
+  their Associated Token Account first. The transfer will fail if the destination
+  token account does not exist. You can use the
+  `getOrCreateAssociatedTokenAccount` pattern to handle this automatically.
+</Note>

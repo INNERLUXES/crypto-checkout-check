@@ -1,0 +1,118 @@
+{
+  "checkout": "Lantern Example Store",
+  "currency": "USD",
+  "notes": "A made-up configuration for the examples of crypto-checkout-check, built to hold a finding of nearly every check. Every address is made up and is not a real contract, except the USDC addresses copied from the saved copy of Circle's page, the inline signing secret is a placeholder that is left out on purpose, and the file holds no key and no seed.",
+  "assets": [
+    {
+      "name": "BTC",
+      "network": "bitcoin",
+      "kind": "native",
+      "decimals": 8,
+      "confirmations": 1,
+      "depositAddress": "per-invoice"
+    },
+    {
+      "name": "ETH",
+      "network": "ethereum",
+      "kind": "native",
+      "decimals": 18,
+      "confirmations": 3,
+      "maxAmount": 50000,
+      "depositAddress": "per-invoice"
+    },
+    {
+      "name": "USDC",
+      "network": "ethereum",
+      "kind": "token",
+      "contract": "0x1111111111111111111111111111111111111111",
+      "decimals": 18,
+      "commitment": "finalized",
+      "maxAmount": 50000,
+      "depositAddress": "per-invoice"
+    },
+    {
+      "name": "USDC",
+      "network": "base",
+      "kind": "token",
+      "contract": "0x8335",
+      "decimals": 6,
+      "confirmations": 12,
+      "maxAmount": 5000,
+      "depositAddress": "per-invoice"
+    },
+    {
+      "name": "SOL",
+      "network": "solana",
+      "kind": "native",
+      "decimals": 9,
+      "commitment": "processed",
+      "maxAmount": 500,
+      "depositAddress": "per-invoice"
+    },
+    {
+      "name": "USDC",
+      "network": "solana",
+      "kind": "token",
+      "contract": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      "decimals": 6,
+      "commitment": "confirmed",
+      "maxAmount": 5000,
+      "depositAddress": "shared",
+      "reference": "none"
+    },
+    {
+      "name": "USDT",
+      "network": "tron",
+      "kind": "token",
+      "decimals": 6,
+      "confirmations": 19,
+      "maxAmount": 1000
+    },
+    {
+      "name": "LTC",
+      "network": "litecoin",
+      "kind": "native",
+      "decimals": 8,
+      "confirmations": 6,
+      "maxAmount": 1000,
+      "depositAddress": "per-invoice"
+    },
+    {
+      "name": "usdc",
+      "network": "Base",
+      "kind": "token",
+      "contract": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "decimals": 6,
+      "confirmations": 12,
+      "maxAmount": 1000,
+      "depositAddress": "per-invoice"
+    },
+    {
+      "name": "DAI",
+      "network": "polygon",
+      "kind": "erc20",
+      "contract": "0xdddddddddddddddddddddddddddddddddddddddd",
+      "Decimals": 18,
+      "confirmations": 64,
+      "maxAmount": 1000,
+      "depositAddress": "per-invoice"
+    }
+  ],
+  "invoice": {
+    "expirySeconds": 600,
+    "expiryRequires": "paid",
+    "rateLockSeconds": 1800,
+    "underpaymentTolerance": -1
+  },
+  "webhook": {
+    "url": "http://lantern.example/hooks/payments",
+    "signature": "hmac-sha1",
+    "signingSecret": "whsec_left-out-on-purpose",
+    "timestampTolerance": 0,
+    "retry": { "maxAttempts": 0, "backoff": "exponential" }
+  },
+  "refunds": {
+    "enabled": true,
+    "destination": "sender"
+  }
+}

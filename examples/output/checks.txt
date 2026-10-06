@@ -1,0 +1,34 @@
+crypto-checkout-check checks
+
+  config-unreadable                       error    input          the file is not JSON the reader can follow, or its top level is not an object, so no configuration was read
+  field-missing                           error    input          a field the checks need is not in the configuration: the checkout name, the currency, the assets, the invoice, the webhook or the refunds, a field of an asset, or what marks a payment on its network as paid
+  field-unknown                           warning  input          a key the tool does not read, often a misspelt one; its value was left out of every check
+  field-invalid                           error    input          a value of the wrong type or form: text where a number belongs, a kind, policy, algorithm or destination the tool does not know, a field the network of the asset does not take, or an amount that is not a plain decimal
+  asset-duplicate                         error    input          two assets share a name on one network (compared without case and outer spaces), so a payment cannot be told apart and a reader cannot tell which line a finding comes from
+  secret-in-config                        error    input          the configuration holds a private key, a seed or a mnemonic, or a webhook signing secret written inline instead of the name of a reference to it; the tool never reads it and never shows it
+  confirmations-below-documented          error    documented     a Bitcoin asset marks an invoice paid with no confirmation, or with fewer than the six confirmations the Bitcoin developer guide asks for on payments of high value, when its largest invoice is above --large-payment or not given
+  confirmations-below-default             warning  best practice  an asset on Ethereum, Polygon PoS, Arbitrum, Base or Tron marks an invoice paid after fewer confirmations than the tool's starting point for the network (--min-confirmations sets another), or after none
+  solana-commitment-processed             error    documented     a Solana asset marks an invoice paid at the processed commitment, a block that can still be rolled back
+  solana-commitment-confirmed             warning  documented     a Solana asset marks an invoice paid at the confirmed commitment, voted on by a supermajority but not yet finalized
+  paid-before-finality                    warning  documented     an Ethereum asset marks an invoice paid after a count of confirmations instead of at the finalized checkpoint, when its largest invoice is above --large-payment or not given
+  evm-paid-before-finality                warning  best practice  an asset on Polygon PoS, Arbitrum or Base marks an invoice paid after a count of confirmations instead of at the finalized block of the network, when its largest invoice is above --large-payment or not given
+  token-contract-missing                  error    documented     a token asset with no contract or mint address, so a token of any contract with the same symbol could pay an invoice
+  token-contract-malformed                error    best practice  a contract or mint address that is not in the form of its network: 0x and 40 hex digits on an EVM network, 32 to 44 base58 characters on Solana, T and 33 base58 characters on Tron
+  token-contract-not-official             error    documented     a USDC asset whose contract or mint address is not the one Circle lists for the network, so payments in another token named USDC would be counted
+  token-decimals-mismatch                 error    documented     a USDC asset whose decimals are not 6, so every amount it reads is off by a power of ten
+  deposit-address-shared                  error    best practice  an asset takes payments for every invoice at one shared address with no memo or payment reference, so a payment cannot be matched to its invoice
+  invoice-expiry-missing                  error    documented     the invoice has no expiry, or one of 0 seconds, so a total priced in a national currency stays open while the rate moves
+  invoice-expiry-below-confirmation-time  warning  documented     the invoice must be paid, not only detected, before it expires (expiryRequires "paid", the default), and it expires sooner than an asset can reach the confirmations or commitment that mark it paid, from the time of a block of its network
+  rate-lock-exceeds-expiry                warning  best practice  the quoted exchange rate is held longer than the invoice runs, so a quote outlives the invoice it was made for
+  payment-tolerance-missing               warning  best practice  the invoice gives no underpayment or overpayment tolerance, or a negative one, so what happens to a payment that is a little short or over is left to chance
+  webhook-not-https                       error    documented     the webhook URL does not use https, so payment events travel in clear text and can be changed on the way
+  webhook-unsigned                        error    documented     the webhook has no signature, or "none", so anyone who knows the URL can post a payment event that marks an invoice paid
+  webhook-weak-signature                  error    documented     the webhook is signed with an algorithm other than HMAC-SHA256 or HMAC-SHA512, such as HMAC-SHA1, MD5 or a hash with no key, or with one the tool does not know
+  webhook-replay-unprotected              warning  documented     the webhook gives no timestamp tolerance, or one of 0, so a payment event captured once can be sent again later
+  webhook-idempotency-missing             error    documented     the webhook names no idempotency key, so an event delivered twice can count one payment twice
+  webhook-retry-missing                   warning  documented     the webhook has no retry policy, or one of 0 attempts, so a payment event lost to one failed delivery is never sent again
+  refund-to-sender                        warning  documented     refunds go back to the address the payment came from, which may belong to an exchange or a shared wallet and not to the payer
+  refund-address-unreviewed               warning  best practice  refunds may go to an address other than the sender with no review, so a refund can be sent to an address that someone else asked for
+  network-not-in-table                    info     best practice  the network is not in the tool's table of networks, so its confirmations, finality and the form of its token addresses were not judged
+
+A documented check rests on a page of the Bitcoin developer guide, ethereum.org, Solana, Circle, Stripe or GitHub; a best practice check is this tool's own choice and says so in its message. An input check is about the configuration file itself.

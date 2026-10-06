@@ -1,0 +1,897 @@
+{
+  "tool": "crypto-checkout-check",
+  "version": "1.0.0",
+  "input": {
+    "file": "examples/bad/checkout.json",
+    "bytes": 3115,
+    "lines": 118
+  },
+  "checkout": {
+    "name": "Lantern Example Store",
+    "currency": "USD",
+    "assets": 10,
+    "networks": [
+      "bitcoin",
+      "ethereum",
+      "base",
+      "solana",
+      "tron",
+      "litecoin",
+      "polygon"
+    ],
+    "expiry": "600 seconds (10 minutes)",
+    "webhook": {
+      "scheme": "http",
+      "signature": "hmac-sha1"
+    }
+  },
+  "totals": {
+    "findings": 28,
+    "byLevel": {
+      "error": 15,
+      "warning": 12,
+      "info": 1
+    },
+    "hidden": 0
+  },
+  "rules": [
+    {
+      "id": "config-unreadable",
+      "level": "error",
+      "kind": "input",
+      "findings": 0
+    },
+    {
+      "id": "field-missing",
+      "level": "error",
+      "kind": "input",
+      "findings": 2
+    },
+    {
+      "id": "field-unknown",
+      "level": "warning",
+      "kind": "input",
+      "findings": 1
+    },
+    {
+      "id": "field-invalid",
+      "level": "error",
+      "kind": "input",
+      "findings": 1
+    },
+    {
+      "id": "asset-duplicate",
+      "level": "error",
+      "kind": "input",
+      "findings": 1
+    },
+    {
+      "id": "secret-in-config",
+      "level": "error",
+      "kind": "input",
+      "findings": 1
+    },
+    {
+      "id": "confirmations-below-documented",
+      "level": "error",
+      "kind": "documented",
+      "findings": 1
+    },
+    {
+      "id": "confirmations-below-default",
+      "level": "warning",
+      "kind": "best practice",
+      "findings": 1
+    },
+    {
+      "id": "solana-commitment-processed",
+      "level": "error",
+      "kind": "documented",
+      "findings": 1
+    },
+    {
+      "id": "solana-commitment-confirmed",
+      "level": "warning",
+      "kind": "documented",
+      "findings": 1
+    },
+    {
+      "id": "paid-before-finality",
+      "level": "warning",
+      "kind": "documented",
+      "findings": 1
+    },
+    {
+      "id": "evm-paid-before-finality",
+      "level": "warning",
+      "kind": "best practice",
+      "findings": 1
+    },
+    {
+      "id": "token-contract-missing",
+      "level": "error",
+      "kind": "documented",
+      "findings": 1
+    },
+    {
+      "id": "token-contract-malformed",
+      "level": "error",
+      "kind": "best practice",
+      "findings": 1
+    },
+    {
+      "id": "token-contract-not-official",
+      "level": "error",
+      "kind": "documented",
+      "findings": 1
+    },
+    {
+      "id": "token-decimals-mismatch",
+      "level": "error",
+      "kind": "documented",
+      "findings": 1
+    },
+    {
+      "id": "deposit-address-shared",
+      "level": "error",
+      "kind": "best practice",
+      "findings": 1
+    },
+    {
+      "id": "invoice-expiry-missing",
+      "level": "error",
+      "kind": "documented",
+      "findings": 0
+    },
+    {
+      "id": "invoice-expiry-below-confirmation-time",
+      "level": "warning",
+      "kind": "documented",
+      "findings": 1
+    },
+    {
+      "id": "rate-lock-exceeds-expiry",
+      "level": "warning",
+      "kind": "best practice",
+      "findings": 1
+    },
+    {
+      "id": "payment-tolerance-missing",
+      "level": "warning",
+      "kind": "best practice",
+      "findings": 2
+    },
+    {
+      "id": "webhook-not-https",
+      "level": "error",
+      "kind": "documented",
+      "findings": 1
+    },
+    {
+      "id": "webhook-unsigned",
+      "level": "error",
+      "kind": "documented",
+      "findings": 0
+    },
+    {
+      "id": "webhook-weak-signature",
+      "level": "error",
+      "kind": "documented",
+      "findings": 1
+    },
+    {
+      "id": "webhook-replay-unprotected",
+      "level": "warning",
+      "kind": "documented",
+      "findings": 1
+    },
+    {
+      "id": "webhook-idempotency-missing",
+      "level": "error",
+      "kind": "documented",
+      "findings": 1
+    },
+    {
+      "id": "webhook-retry-missing",
+      "level": "warning",
+      "kind": "documented",
+      "findings": 1
+    },
+    {
+      "id": "refund-to-sender",
+      "level": "warning",
+      "kind": "documented",
+      "findings": 1
+    },
+    {
+      "id": "refund-address-unreviewed",
+      "level": "warning",
+      "kind": "best practice",
+      "findings": 0
+    },
+    {
+      "id": "network-not-in-table",
+      "level": "info",
+      "kind": "best practice",
+      "findings": 1
+    }
+  ],
+  "config": {
+    "minSeverity": "info",
+    "failOn": "error",
+    "largePayment": "1000",
+    "minConfirmations": {}
+  },
+  "findings": [
+    {
+      "id": "confirmations-below-documented",
+      "severity": "error",
+      "message": "Asset BTC on bitcoin marks an invoice paid after 1 confirmation, and the asset gives no maxAmount, so an invoice of any size can be paid with it, above the --large-payment limit of 1000 USD. The Bitcoin developer guide asks software that takes payments of high value to wait for at least six confirmations, about an hour; until then a double spend can still take the payment back.",
+      "file": "examples/bad/checkout.json",
+      "line": 11,
+      "column": 7,
+      "at": "examples/bad/checkout.json:11",
+      "entry": "BTC on bitcoin",
+      "fix": "Wait for six confirmations before an invoice of high value is paid, or give the asset a maxAmount at or below --large-payment and record the risk analysis the guide asks for.",
+      "kind": "documented",
+      "basis": [
+        {
+          "text": "The guide asks software that takes payments of high value, or that is otherwise open to fraud, to wait for six confirmations or more before it treats a payment as accepted, and calls the number somewhat arbitrary.",
+          "source": "Bitcoin Developer Guide: Payment Processing",
+          "url": "https://developer.bitcoin.org/devguide/payment_processing.html"
+        },
+        {
+          "text": "A payment with no confirmation has only been broadcast; the guide says not to trust one without an analysis of the risk, since a fraudster may get a different version of it into a block.",
+          "source": "Bitcoin Developer Guide: Payment Processing",
+          "url": "https://developer.bitcoin.org/devguide/payment_processing.html"
+        },
+        {
+          "text": "A payment with a fee that is high enough waits ten minutes on average for its first confirmation, and since the newest block is often replaced by accident, one confirmation still leaves room for a double spend.",
+          "source": "Bitcoin Developer Guide: Payment Processing",
+          "url": "https://developer.bitcoin.org/devguide/payment_processing.html"
+        }
+      ],
+      "own": null
+    },
+    {
+      "id": "token-contract-not-official",
+      "severity": "error",
+      "message": "The contract of asset USDC on ethereum is 0x1111111111111111111111111111111111111111, but Circle's page of USDC contract addresses lists 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48 for Ethereum: payments in another token named USDC would be counted as USDC.",
+      "file": "examples/bad/checkout.json",
+      "line": 27,
+      "column": 7,
+      "at": "examples/bad/checkout.json:27",
+      "entry": "USDC on ethereum",
+      "fix": "Use the address Circle lists for USDC on the network (docs/inputs.md), or rename the asset when it is another token, such as a bridged USDC.e.",
+      "kind": "documented",
+      "basis": [
+        {
+          "text": "Circle lists the address of the USDC contract or mint on each mainnet it supports, Ethereum, Polygon PoS, Arbitrum, Base and Solana among them, and asks for every address on a mainnet to be checked, since the tokens hold real value.",
+          "source": "Circle: USDC contract addresses",
+          "url": "https://developers.circle.com/stablecoins/usdc-contract-addresses"
+        }
+      ],
+      "own": null
+    },
+    {
+      "id": "token-decimals-mismatch",
+      "severity": "error",
+      "message": "Asset USDC on ethereum has 18 decimals, but the Circle quickstart for Solana says USDC carries 6: every amount read is too small by a factor of 1,000,000,000,000, so a full payment looks like an underpayment.",
+      "file": "examples/bad/checkout.json",
+      "line": 28,
+      "column": 7,
+      "at": "examples/bad/checkout.json:28",
+      "entry": "USDC on ethereum",
+      "fix": "Set the decimals of USDC to 6.",
+      "kind": "documented",
+      "basis": [
+        {
+          "text": "The Circle quickstart for Solana says USDC carries 6 decimals, so that one USDC is the amount 1,000,000 in the smallest unit.",
+          "source": "Circle: Quickstart: Transfer USDC on Solana",
+          "url": "https://developers.circle.com/stablecoins/quickstart-transfer-10-usdc-on-solana"
+        }
+      ],
+      "own": null
+    },
+    {
+      "id": "token-contract-malformed",
+      "severity": "error",
+      "message": "The contract of asset USDC on base is \"0x8335\", which has 4 characters after 0x, not 40; on Base it is 0x followed by 40 hex digits, not the zero address. This is a best practice of this tool, not a rule in the pages it cites.",
+      "file": "examples/bad/checkout.json",
+      "line": 37,
+      "column": 7,
+      "at": "examples/bad/checkout.json:37",
+      "entry": "USDC on base",
+      "fix": "Copy the address of the token again from the issuer's own list for the network.",
+      "kind": "best practice",
+      "basis": [],
+      "own": "reading the form of an address is a best practice of this tool, not a rule in the pages it cites; the pages show addresses in these forms but set no rule for a configuration, and no checksum is checked"
+    },
+    {
+      "id": "solana-commitment-processed",
+      "severity": "error",
+      "message": "Asset SOL on solana marks an invoice paid at the processed commitment. The Solana RPC page says a processed block can still be rolled back, and the page on confirmation says about 5 percent of blocks are never finalized.",
+      "file": "examples/bad/checkout.json",
+      "line": 48,
+      "column": 7,
+      "at": "examples/bad/checkout.json:48",
+      "entry": "SOL on solana",
+      "fix": "Mark a Solana invoice paid at the finalized commitment.",
+      "kind": "documented",
+      "basis": [
+        {
+          "text": "Solana RPC has three commitment levels: processed, the newest block of the node, which can still be rolled back; confirmed, a block voted on by more than two thirds of the stake; and finalized, a block at maximum lockout.",
+          "source": "Solana: RPC overview, Configuring State Commitment",
+          "url": "https://solana.com/docs/rpc"
+        },
+        {
+          "text": "The guide says about 5 percent of blocks are never finalized because they sit on a fork that is dropped, that the finalized level takes that risk away, and that it trails the confirmed level by 32 slots or more.",
+          "source": "Solana: Transaction Confirmation & Expiration",
+          "url": "https://solana.com/developers/guides/advanced/confirmation"
+        }
+      ],
+      "own": null
+    },
+    {
+      "id": "deposit-address-shared",
+      "severity": "error",
+      "message": "Asset USDC on solana takes the payments of every invoice at one shared address and asks for no memo or reference key, so two customers who pay the same amount cannot be told apart, and a payment can be counted for the wrong invoice or for none. This is a best practice of this tool, not a rule in the pages it cites.",
+      "file": "examples/bad/checkout.json",
+      "line": 60,
+      "column": 7,
+      "at": "examples/bad/checkout.json:60",
+      "entry": "USDC on solana",
+      "fix": "Issue a fresh deposit address for each invoice, or ask for a memo or reference key that names the invoice and refuse a payment without one.",
+      "kind": "best practice",
+      "basis": [
+        {
+          "text": "In the payment request the guide walks through, the merchant asks to be paid to a script with a public key that was never used before, and that key also serves to find the details of the order.",
+          "source": "Bitcoin Developer Guide: Payment Processing",
+          "url": "https://developer.bitcoin.org/devguide/payment_processing.html"
+        }
+      ],
+      "own": "asking for a deposit address or a reference of its own for each invoice is a best practice of this tool, not a rule in the pages it cites; the Bitcoin guide shows a key never used before in its payment request, and the tool applies the idea to every network"
+    },
+    {
+      "id": "field-missing",
+      "severity": "error",
+      "message": "Asset 7 has no depositAddress.",
+      "file": "examples/bad/checkout.json",
+      "line": 63,
+      "column": 5,
+      "at": "examples/bad/checkout.json:63",
+      "entry": null,
+      "fix": "Add the field named; docs/inputs.md lists what each part of the configuration needs.",
+      "kind": "input",
+      "basis": [],
+      "own": null
+    },
+    {
+      "id": "token-contract-missing",
+      "severity": "error",
+      "message": "Asset USDT on tron is a token with no contract address, so a token of any contract named USDT could pay an invoice. Circle's page of USDC contract addresses asks for every address on a mainnet to be checked.",
+      "file": "examples/bad/checkout.json",
+      "line": 63,
+      "column": 5,
+      "at": "examples/bad/checkout.json:63",
+      "entry": "USDT on tron",
+      "fix": "Give the contract or mint address of the token on the network, copied from the issuer's own list.",
+      "kind": "documented",
+      "basis": [
+        {
+          "text": "Circle lists the address of the USDC contract or mint on each mainnet it supports, Ethereum, Polygon PoS, Arbitrum, Base and Solana among them, and asks for every address on a mainnet to be checked, since the tokens hold real value.",
+          "source": "Circle: USDC contract addresses",
+          "url": "https://developers.circle.com/stablecoins/usdc-contract-addresses"
+        }
+      ],
+      "own": null
+    },
+    {
+      "id": "asset-duplicate",
+      "severity": "error",
+      "message": "Asset 9 is usdc on Base, as is asset 4 at line 34; a payment cannot be told apart and a finding cannot be traced to one of them.",
+      "file": "examples/bad/checkout.json",
+      "line": 81,
+      "column": 7,
+      "at": "examples/bad/checkout.json:81",
+      "entry": "usdc on Base",
+      "fix": "Give each asset of a network a name of its own, or merge the two.",
+      "kind": "input",
+      "basis": [],
+      "own": null
+    },
+    {
+      "id": "field-invalid",
+      "severity": "error",
+      "message": "The kind of asset DAI on polygon is \"erc20\"; it must be native or token.",
+      "file": "examples/bad/checkout.json",
+      "line": 93,
+      "column": 7,
+      "at": "examples/bad/checkout.json:93",
+      "entry": null,
+      "fix": "Write the value as docs/inputs.md shows: text for names, addresses and references, whole numbers for seconds, confirmations and decimals, plain decimal numbers for amounts and percents.",
+      "kind": "input",
+      "basis": [],
+      "own": null
+    },
+    {
+      "id": "field-missing",
+      "severity": "error",
+      "message": "The webhook is signed with hmac-sha1 but has no secretRef; name the secret the signature is made with by a reference, such as env:CHECKOUT_WEBHOOK_SECRET.",
+      "file": "examples/bad/checkout.json",
+      "line": 107,
+      "column": 14,
+      "at": "examples/bad/checkout.json:107",
+      "entry": null,
+      "fix": "Add the field named; docs/inputs.md lists what each part of the configuration needs.",
+      "kind": "input",
+      "basis": [],
+      "own": null
+    },
+    {
+      "id": "webhook-idempotency-missing",
+      "severity": "error",
+      "message": "The webhook names no idempotencyKey, so an event delivered twice can count one payment twice. Stripe says an endpoint may receive an event more than once and asks it to skip the ids it has handled.",
+      "file": "examples/bad/checkout.json",
+      "line": 107,
+      "column": 14,
+      "at": "examples/bad/checkout.json:107",
+      "entry": null,
+      "fix": "Name the field that identifies an event, such as event.id, record each one handled, and skip one seen before.",
+      "kind": "documented",
+      "basis": [
+        {
+          "text": "An endpoint can receive one event more than once, so the page asks it to record the ids of the events it has handled and to pass over an event whose id it already has.",
+          "source": "Stripe: Receive Stripe events in your webhook endpoint",
+          "url": "https://docs.stripe.com/webhooks"
+        }
+      ],
+      "own": null
+    },
+    {
+      "id": "webhook-not-https",
+      "severity": "error",
+      "message": "The webhook URL uses http, not https, so payment events cross the network in clear text and can be read or changed on the way. Stripe asks for a public HTTPS address and allows plain HTTP only on a developer's own machine.",
+      "file": "examples/bad/checkout.json",
+      "line": 108,
+      "column": 5,
+      "at": "examples/bad/checkout.json:108",
+      "entry": null,
+      "fix": "Give the webhook a public https URL.",
+      "kind": "documented",
+      "basis": [
+        {
+          "text": "Stripe delivers events over HTTPS, wants a public HTTPS address before it registers an endpoint, and allows plain HTTP only while the endpoint runs on the machine of a developer.",
+          "source": "Stripe: Receive Stripe events in your webhook endpoint",
+          "url": "https://docs.stripe.com/webhooks"
+        }
+      ],
+      "own": null
+    },
+    {
+      "id": "webhook-weak-signature",
+      "severity": "error",
+      "message": "The webhook is signed with \"hmac-sha1\", which is weaker than HMAC-SHA256. GitHub keeps HMAC-SHA1 for older code only and signs with HMAC-SHA256, as Stripe does.",
+      "file": "examples/bad/checkout.json",
+      "line": 109,
+      "column": 5,
+      "at": "examples/bad/checkout.json:109",
+      "entry": null,
+      "fix": "Sign webhooks with HMAC-SHA256, and compare signatures in constant time.",
+      "kind": "documented",
+      "basis": [
+        {
+          "text": "Every event carries a signature made with HMAC and SHA-256 under the secret of the endpoint; unchecked, the page says, an attacker could post false events that fulfil orders or change records.",
+          "source": "Stripe: Receive Stripe events in your webhook endpoint",
+          "url": "https://docs.stripe.com/webhooks"
+        },
+        {
+          "text": "GitHub signs each delivery with HMAC-SHA256 in the X-Hub-Signature-256 header, keeps the HMAC-SHA1 header for older code only, and asks for the two hashes to be compared in constant time.",
+          "source": "GitHub Docs: Validating webhook deliveries",
+          "url": "https://docs.github.com/en/webhooks/using-webhooks/validating-webhook-deliveries"
+        }
+      ],
+      "own": null
+    },
+    {
+      "id": "secret-in-config",
+      "severity": "error",
+      "message": "The webhook holds the key \"signingSecret\", a signing secret written into the file. The value is not shown; name the secret by a reference in secretRef instead.",
+      "file": "examples/bad/checkout.json",
+      "line": 110,
+      "column": 5,
+      "at": "examples/bad/checkout.json:110",
+      "entry": null,
+      "fix": "Remove the value from the file and from the history of the repository, treat it as exposed and replace it, and name the webhook secret by a reference such as env:CHECKOUT_WEBHOOK_SECRET.",
+      "kind": "input",
+      "basis": [],
+      "own": null
+    },
+    {
+      "id": "confirmations-below-default",
+      "severity": "warning",
+      "message": "Asset ETH on ethereum marks an invoice paid after 3 confirmations, fewer than the tool's starting point of 12 for Ethereum; a block that is replaced takes the payment with it. This is a best practice of this tool, not a rule in the pages it cites.",
+      "file": "examples/bad/checkout.json",
+      "line": 19,
+      "column": 7,
+      "at": "examples/bad/checkout.json:19",
+      "entry": "ETH on ethereum",
+      "fix": "Raise the confirmations of the asset, wait for the finalized checkpoint on an EVM network, or set the threshold your team has chosen with --min-confirmations and record why.",
+      "kind": "best practice",
+      "basis": [],
+      "own": "the number of confirmations for a network other than Bitcoin is a best practice of this tool, not a rule in the pages it cites; none of the saved pages gives one, so the tool starts from its own table and lets --min-confirmations change it"
+    },
+    {
+      "id": "paid-before-finality",
+      "severity": "warning",
+      "message": "Asset ETH on ethereum marks an invoice paid after 3 confirmations, before its block is finalized, and its largest invoice, 50000 USD, is above the --large-payment limit of 1000 USD. The page of ethereum.org on proof-of-stake says a block is final only once a checkpoint above it is justified and then finalized, which takes at least two epochs of 32 slots of 12 seconds.",
+      "file": "examples/bad/checkout.json",
+      "line": 19,
+      "column": 7,
+      "at": "examples/bad/checkout.json:19",
+      "entry": "ETH on ethereum",
+      "fix": "Mark an Ethereum invoice of high value paid once its block is finalized (commitment \"finalized\"), or give the asset a maxAmount at or below --large-payment.",
+      "kind": "documented",
+      "basis": [
+        {
+          "text": "On proof-of-stake Ethereum a block is final once a checkpoint above it has passed two votes of two thirds of the staked ether, first justified and then finalized, after which undoing it would burn a large share of the stake.",
+          "source": "ethereum.org: Proof-of-stake (PoS)",
+          "url": "https://ethereum.org/en/developers/docs/consensus-mechanisms/pos/"
+        },
+        {
+          "text": "Proof-of-stake Ethereum divides time into slots of 12 seconds and epochs of 32 slots, and its checkpoints, the blocks that finality is decided on, are the first block of each epoch.",
+          "source": "ethereum.org: Proof-of-stake (PoS)",
+          "url": "https://ethereum.org/en/developers/docs/consensus-mechanisms/pos/"
+        }
+      ],
+      "own": null
+    },
+    {
+      "id": "evm-paid-before-finality",
+      "severity": "warning",
+      "message": "Asset USDC on base marks an invoice paid after 12 confirmations, before its block is finalized, and its largest invoice, 5000 USD, is above the --large-payment limit of 1000 USD. This is a best practice of this tool, not a rule in the pages it cites.",
+      "file": "examples/bad/checkout.json",
+      "line": 39,
+      "column": 7,
+      "at": "examples/bad/checkout.json:39",
+      "entry": "USDC on base",
+      "fix": "Mark an invoice of high value paid once the network reports its block as finalized (commitment \"finalized\"), or give the asset a maxAmount at or below --large-payment.",
+      "kind": "best practice",
+      "basis": [
+        {
+          "text": "On proof-of-stake Ethereum a block is final once a checkpoint above it has passed two votes of two thirds of the staked ether, first justified and then finalized, after which undoing it would burn a large share of the stake.",
+          "source": "ethereum.org: Proof-of-stake (PoS)",
+          "url": "https://ethereum.org/en/developers/docs/consensus-mechanisms/pos/"
+        }
+      ],
+      "own": "asking for finality on an EVM network other than Ethereum is a best practice of this tool, not a rule in the pages it cites; the page of ethereum.org describes the finality of Ethereum, and each of these networks finalizes in its own way"
+    },
+    {
+      "id": "solana-commitment-confirmed",
+      "severity": "warning",
+      "message": "Asset USDC on solana marks an invoice paid at the confirmed commitment. A confirmed block has the votes of a supermajority of the stake but is not yet finalized; the Solana page on confirmation says only the finalized level takes away the risk of a dropped fork.",
+      "file": "examples/bad/checkout.json",
+      "line": 58,
+      "column": 7,
+      "at": "examples/bad/checkout.json:58",
+      "entry": "USDC on solana",
+      "fix": "Mark a Solana invoice paid at the finalized commitment, which the page on confirmation says removes the risk of a dropped fork, or record why confirmed is enough for the amounts the asset takes.",
+      "kind": "documented",
+      "basis": [
+        {
+          "text": "Solana RPC has three commitment levels: processed, the newest block of the node, which can still be rolled back; confirmed, a block voted on by more than two thirds of the stake; and finalized, a block at maximum lockout.",
+          "source": "Solana: RPC overview, Configuring State Commitment",
+          "url": "https://solana.com/docs/rpc"
+        },
+        {
+          "text": "The guide says about 5 percent of blocks are never finalized because they sit on a fork that is dropped, that the finalized level takes that risk away, and that it trails the confirmed level by 32 slots or more.",
+          "source": "Solana: Transaction Confirmation & Expiration",
+          "url": "https://solana.com/developers/guides/advanced/confirmation"
+        }
+      ],
+      "own": null
+    },
+    {
+      "id": "field-unknown",
+      "severity": "warning",
+      "message": "The key \"Decimals\" of asset 10 is not one the tool reads, so its value was left out of every check. Did you mean \"decimals\"? The keys of asset 10 are name, network, kind, contract, decimals, confirmations, commitment, maxAmount, depositAddress, reference, notes.",
+      "file": "examples/bad/checkout.json",
+      "line": 95,
+      "column": 7,
+      "at": "examples/bad/checkout.json:95",
+      "entry": null,
+      "fix": "Correct the spelling to a key of docs/inputs.md, or remove the key.",
+      "kind": "input",
+      "basis": [],
+      "own": null
+    },
+    {
+      "id": "payment-tolerance-missing",
+      "severity": "warning",
+      "message": "The invoice has no overpaymentTolerance, so what the checkout does with a payment that is a little short or a little over is not written down: it may be lost, refused or counted in full. This is a best practice of this tool, not a rule in the pages it cites.",
+      "file": "examples/bad/checkout.json",
+      "line": 101,
+      "column": 14,
+      "at": "examples/bad/checkout.json:101",
+      "entry": null,
+      "fix": "Give an underpaymentTolerance and an overpaymentTolerance in percent, from 0, and say what the checkout does with a payment outside them.",
+      "kind": "best practice",
+      "basis": [
+        {
+          "text": "With a shorter expiry an invoice is more likely to run out before the payment arrives, which may mean asking for more or refunding by hand; with a longer one the rate has more time to move.",
+          "source": "Bitcoin Developer Guide: Payment Processing",
+          "url": "https://developer.bitcoin.org/devguide/payment_processing.html"
+        }
+      ],
+      "own": "asking for written tolerances is a best practice of this tool, not a rule in the pages it cites; the Bitcoin guide says a late or short payment may need more money or a refund by hand, not how far off a payment may be"
+    },
+    {
+      "id": "invoice-expiry-below-confirmation-time",
+      "severity": "warning",
+      "message": "The invoice expires after 600 seconds (10 minutes), but a payment in asset USDC on ethereum takes about 768 seconds to reach the finalized checkpoint: the invoice must be paid before it expires, so a payment sent on time can run out before it is marked paid, and the payer is asked for more or refunded by hand. The Bitcoin developer guide warns of this with a short expiry.",
+      "file": "examples/bad/checkout.json",
+      "line": 102,
+      "column": 5,
+      "at": "examples/bad/checkout.json:102",
+      "entry": "USDC on ethereum",
+      "fix": "Let the invoice run longer than the time to confirm on every network it accepts, or hold an invoice open once its payment is detected and write expiryRequires \"detected\".",
+      "kind": "documented",
+      "basis": [
+        {
+          "text": "With a shorter expiry an invoice is more likely to run out before the payment arrives, which may mean asking for more or refunding by hand; with a longer one the rate has more time to move.",
+          "source": "Bitcoin Developer Guide: Payment Processing",
+          "url": "https://developer.bitcoin.org/devguide/payment_processing.html"
+        },
+        {
+          "text": "A payment with a fee that is high enough waits ten minutes on average for its first confirmation, and since the newest block is often replaced by accident, one confirmation still leaves room for a double spend.",
+          "source": "Bitcoin Developer Guide: Payment Processing",
+          "url": "https://developer.bitcoin.org/devguide/payment_processing.html"
+        },
+        {
+          "text": "Proof-of-stake Ethereum divides time into slots of 12 seconds and epochs of 32 slots, and its checkpoints, the blocks that finality is decided on, are the first block of each epoch.",
+          "source": "ethereum.org: Proof-of-stake (PoS)",
+          "url": "https://ethereum.org/en/developers/docs/consensus-mechanisms/pos/"
+        },
+        {
+          "text": "A slot of Solana is set to about 400 milliseconds and may vary between 400 and 600.",
+          "source": "Solana: Transaction Confirmation & Expiration",
+          "url": "https://solana.com/developers/guides/advanced/confirmation"
+        }
+      ],
+      "own": null
+    },
+    {
+      "id": "rate-lock-exceeds-expiry",
+      "severity": "warning",
+      "message": "The quoted rate is held for 1,800 seconds (30 minutes), longer than the 600 seconds (10 minutes) the invoice runs, so a quote outlives its invoice and a payment after the expiry can still be priced at it. This is a best practice of this tool, not a rule in the pages it cites.",
+      "file": "examples/bad/checkout.json",
+      "line": 104,
+      "column": 5,
+      "at": "examples/bad/checkout.json:104",
+      "entry": null,
+      "fix": "Hold the rate no longer than the invoice runs, and quote again for a payment that comes after.",
+      "kind": "best practice",
+      "basis": [
+        {
+          "text": "An order priced in a national currency and paid in bitcoin has to expire, or the payer can wait for the price to move; the guide says payment processors let invoices run for 10 to 20 minutes.",
+          "source": "Bitcoin Developer Guide: Payment Processing",
+          "url": "https://developer.bitcoin.org/devguide/payment_processing.html"
+        }
+      ],
+      "own": "comparing the time a rate is held with the expiry of the invoice is a best practice of this tool, not a rule in the pages it cites; the Bitcoin guide asks for totals in a national currency to expire, not for a rule on how long a rate is held"
+    },
+    {
+      "id": "payment-tolerance-missing",
+      "severity": "warning",
+      "message": "The underpaymentTolerance of the invoice is negative, so no underpayment tolerance is defined and an exact payment may fall outside it. This is a best practice of this tool, not a rule in the pages it cites.",
+      "file": "examples/bad/checkout.json",
+      "line": 105,
+      "column": 5,
+      "at": "examples/bad/checkout.json:105",
+      "entry": null,
+      "fix": "Give an underpaymentTolerance and an overpaymentTolerance in percent, from 0, and say what the checkout does with a payment outside them.",
+      "kind": "best practice",
+      "basis": [
+        {
+          "text": "With a shorter expiry an invoice is more likely to run out before the payment arrives, which may mean asking for more or refunding by hand; with a longer one the rate has more time to move.",
+          "source": "Bitcoin Developer Guide: Payment Processing",
+          "url": "https://developer.bitcoin.org/devguide/payment_processing.html"
+        }
+      ],
+      "own": "asking for written tolerances is a best practice of this tool, not a rule in the pages it cites; the Bitcoin guide says a late or short payment may need more money or a refund by hand, not how far off a payment may be"
+    },
+    {
+      "id": "webhook-replay-unprotected",
+      "severity": "warning",
+      "message": "The webhook has a timestampTolerance of 0, so a payment event captured once can be sent again later and still pass. Stripe signs a timestamp with each event, allows 5 minutes by default and says a tolerance of 0 turns the check off.",
+      "file": "examples/bad/checkout.json",
+      "line": 111,
+      "column": 5,
+      "at": "examples/bad/checkout.json:111",
+      "entry": null,
+      "fix": "Sign a timestamp with every event and refuse one older than a tolerance, such as the 5 minutes of the Stripe libraries.",
+      "kind": "documented",
+      "basis": [
+        {
+          "text": "To stop a replay, the signed header holds a timestamp, and a payload whose signature is valid but whose timestamp is old can be refused; the libraries allow 5 minutes, and a tolerance of 0 switches the check off.",
+          "source": "Stripe: Receive Stripe events in your webhook endpoint",
+          "url": "https://docs.stripe.com/webhooks"
+        }
+      ],
+      "own": null
+    },
+    {
+      "id": "webhook-retry-missing",
+      "severity": "warning",
+      "message": "The webhook retries 0 times, so a payment event lost to one failed delivery is never sent again and the invoice stays unpaid. Stripe retries for up to three days with exponential back off.",
+      "file": "examples/bad/checkout.json",
+      "line": 112,
+      "column": 16,
+      "at": "examples/bad/checkout.json:112",
+      "entry": null,
+      "fix": "Retry failed deliveries with exponential back off over hours or days, and let an operator send an event again by hand.",
+      "kind": "documented",
+      "basis": [
+        {
+          "text": "In live mode Stripe goes on trying to deliver an event for up to three days with exponential back off, and an event can also be sent again by hand.",
+          "source": "Stripe: Receive Stripe events in your webhook endpoint",
+          "url": "https://docs.stripe.com/webhooks"
+        }
+      ],
+      "own": null
+    },
+    {
+      "id": "refund-to-sender",
+      "severity": "warning",
+      "message": "Refunds go back to the address the payment came from. The Bitcoin developer guide calls this very unsafe: the payment may have come from an exchange or a shared wallet that cannot tell which of its users the refund is for, and asks the payer for a refund address instead.",
+      "file": "examples/bad/checkout.json",
+      "line": 116,
+      "column": 5,
+      "at": "examples/bad/checkout.json:116",
+      "entry": null,
+      "fix": "Ask the payer for a refund address (destination \"customer-provided\") instead of sending a refund to the sending address.",
+      "kind": "documented",
+      "basis": [
+        {
+          "text": "Sending a refund back to the script the payment came from is called very unsafe, because a shared web wallet may not know which of its users it is for; the guide asks the payer for a refund address instead.",
+          "source": "Bitcoin Developer Guide: Payment Processing",
+          "url": "https://developer.bitcoin.org/devguide/payment_processing.html"
+        }
+      ],
+      "own": null
+    },
+    {
+      "id": "network-not-in-table",
+      "severity": "info",
+      "message": "The network \"litecoin\" of asset LTC on litecoin is not in the tool's table (bitcoin, ethereum, polygon, arbitrum, base, solana, tron), so what marks a payment on it as final and the form of its token addresses were not judged. This is a best practice of this tool, not a rule in the pages it cites.",
+      "file": "examples/bad/checkout.json",
+      "line": 73,
+      "column": 7,
+      "at": "examples/bad/checkout.json:73",
+      "entry": "LTC on litecoin",
+      "fix": "Check by hand what marks a payment on the network as final and how its token addresses are written, or name the network as the table does (docs/inputs.md).",
+      "kind": "best practice",
+      "basis": [],
+      "own": "keeping a short table of networks is a best practice of this tool, not a rule in the pages it cites; the pages describe Bitcoin, Ethereum and Solana, and the rest of the table is the tool's own"
+    }
+  ],
+  "table": [
+    {
+      "asset": "BTC",
+      "network": "bitcoin",
+      "kind": "native",
+      "decimals": 8,
+      "paidAt": "1 conf",
+      "toPaid": "600 seconds (10 minutes)",
+      "maxAmount": null,
+      "deposit": "per-invoice",
+      "contract": null
+    },
+    {
+      "asset": "ETH",
+      "network": "ethereum",
+      "kind": "native",
+      "decimals": 18,
+      "paidAt": "3 conf",
+      "toPaid": "36 seconds",
+      "maxAmount": "50000",
+      "deposit": "per-invoice",
+      "contract": null
+    },
+    {
+      "asset": "USDC",
+      "network": "ethereum",
+      "kind": "token",
+      "decimals": 18,
+      "paidAt": "finalized",
+      "toPaid": "768 seconds",
+      "maxAmount": "50000",
+      "deposit": "per-invoice",
+      "contract": "not official"
+    },
+    {
+      "asset": "USDC",
+      "network": "base",
+      "kind": "token",
+      "decimals": 6,
+      "paidAt": "12 conf",
+      "toPaid": "24 seconds",
+      "maxAmount": "5000",
+      "deposit": "per-invoice",
+      "contract": "malformed"
+    },
+    {
+      "asset": "SOL",
+      "network": "solana",
+      "kind": "native",
+      "decimals": 9,
+      "paidAt": "processed",
+      "toPaid": "0.4 seconds",
+      "maxAmount": "500",
+      "deposit": "per-invoice",
+      "contract": null
+    },
+    {
+      "asset": "USDC",
+      "network": "solana",
+      "kind": "token",
+      "decimals": 6,
+      "paidAt": "confirmed",
+      "toPaid": "0.4 seconds",
+      "maxAmount": "5000",
+      "deposit": "shared",
+      "contract": "official"
+    },
+    {
+      "asset": "USDT",
+      "network": "tron",
+      "kind": "token",
+      "decimals": 6,
+      "paidAt": "19 conf",
+      "toPaid": "57 seconds",
+      "maxAmount": "1000",
+      "deposit": null,
+      "contract": "missing"
+    },
+    {
+      "asset": "LTC",
+      "network": "litecoin",
+      "kind": "native",
+      "decimals": 8,
+      "paidAt": "6 conf",
+      "toPaid": null,
+      "maxAmount": "1000",
+      "deposit": "per-invoice",
+      "contract": null
+    },
+    {
+      "asset": "usdc",
+      "network": "base",
+      "kind": "token",
+      "decimals": 6,
+      "paidAt": "12 conf",
+      "toPaid": "24 seconds",
+      "maxAmount": "1000",
+      "deposit": "per-invoice",
+      "contract": "official"
+    },
+    {
+      "asset": "DAI",
+      "network": "polygon",
+      "kind": null,
+      "decimals": null,
+      "paidAt": "64 conf",
+      "toPaid": "128 seconds",
+      "maxAmount": "1000",
+      "deposit": "per-invoice",
+      "contract": null
+    }
+  ],
+  "notes": [],
+  "notice": "This report is an input to a review before the checkout goes live: not a security audit and not a guarantee that no payment will be lost or counted twice.",
+  "result": {
+    "pass": false,
+    "failOn": "error",
+    "text": "FAIL - 15 findings at or above error (15 error, 12 warning, 1 info)"
+  }
+}

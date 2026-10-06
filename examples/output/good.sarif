@@ -1,0 +1,546 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "crypto-checkout-check",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/INNERLUXES/crypto-checkout-check",
+          "rules": [
+            {
+              "id": "config-unreadable",
+              "name": "config-unreadable",
+              "shortDescription": {
+                "text": "the file is not JSON the reader can follow, or its top level is not an object, so no configuration was read"
+              },
+              "help": {
+                "text": "Write the configuration as one JSON object (docs/inputs.md), and fix the line named. (input)"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "kind": "input"
+              }
+            },
+            {
+              "id": "field-missing",
+              "name": "field-missing",
+              "shortDescription": {
+                "text": "a field the checks need is not in the configuration: the checkout name, the currency, the assets, the invoice, the webhook or the refunds, a field of an asset, or what marks a payment on its network as paid"
+              },
+              "help": {
+                "text": "Add the field named; docs/inputs.md lists what each part of the configuration needs. (input)"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "kind": "input"
+              }
+            },
+            {
+              "id": "field-unknown",
+              "name": "field-unknown",
+              "shortDescription": {
+                "text": "a key the tool does not read, often a misspelt one; its value was left out of every check"
+              },
+              "help": {
+                "text": "Correct the spelling to a key of docs/inputs.md, or remove the key. (input)"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "kind": "input"
+              }
+            },
+            {
+              "id": "field-invalid",
+              "name": "field-invalid",
+              "shortDescription": {
+                "text": "a value of the wrong type or form: text where a number belongs, a kind, policy, algorithm or destination the tool does not know, a field the network of the asset does not take, or an amount that is not a plain decimal"
+              },
+              "help": {
+                "text": "Write the value as docs/inputs.md shows: text for names, addresses and references, whole numbers for seconds, confirmations and decimals, plain decimal numbers for amounts and percents. (input)"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "kind": "input"
+              }
+            },
+            {
+              "id": "asset-duplicate",
+              "name": "asset-duplicate",
+              "shortDescription": {
+                "text": "two assets share a name on one network (compared without case and outer spaces), so a payment cannot be told apart and a reader cannot tell which line a finding comes from"
+              },
+              "help": {
+                "text": "Give each asset of a network a name of its own, or merge the two. (input)"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "kind": "input"
+              }
+            },
+            {
+              "id": "secret-in-config",
+              "name": "secret-in-config",
+              "shortDescription": {
+                "text": "the configuration holds a private key, a seed or a mnemonic, or a webhook signing secret written inline instead of the name of a reference to it; the tool never reads it and never shows it"
+              },
+              "help": {
+                "text": "Remove the value from the file and from the history of the repository, treat it as exposed and replace it, and name the webhook secret by a reference such as env:CHECKOUT_WEBHOOK_SECRET. (input)"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "kind": "input"
+              }
+            },
+            {
+              "id": "confirmations-below-documented",
+              "name": "confirmations-below-documented",
+              "shortDescription": {
+                "text": "a Bitcoin asset marks an invoice paid with no confirmation, or with fewer than the six confirmations the Bitcoin developer guide asks for on payments of high value, when its largest invoice is above --large-payment or not given"
+              },
+              "help": {
+                "text": "Wait for six confirmations before an invoice of high value is paid, or give the asset a maxAmount at or below --large-payment and record the risk analysis the guide asks for. (documented)"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "kind": "documented"
+              }
+            },
+            {
+              "id": "confirmations-below-default",
+              "name": "confirmations-below-default",
+              "shortDescription": {
+                "text": "an asset on Ethereum, Polygon PoS, Arbitrum, Base or Tron marks an invoice paid after fewer confirmations than the tool's starting point for the network (--min-confirmations sets another), or after none"
+              },
+              "help": {
+                "text": "Raise the confirmations of the asset, wait for the finalized checkpoint on an EVM network, or set the threshold your team has chosen with --min-confirmations and record why. (best practice)"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "kind": "best practice"
+              }
+            },
+            {
+              "id": "solana-commitment-processed",
+              "name": "solana-commitment-processed",
+              "shortDescription": {
+                "text": "a Solana asset marks an invoice paid at the processed commitment, a block that can still be rolled back"
+              },
+              "help": {
+                "text": "Mark a Solana invoice paid at the finalized commitment. (documented)"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "kind": "documented"
+              }
+            },
+            {
+              "id": "solana-commitment-confirmed",
+              "name": "solana-commitment-confirmed",
+              "shortDescription": {
+                "text": "a Solana asset marks an invoice paid at the confirmed commitment, voted on by a supermajority but not yet finalized"
+              },
+              "help": {
+                "text": "Mark a Solana invoice paid at the finalized commitment, which the page on confirmation says removes the risk of a dropped fork, or record why confirmed is enough for the amounts the asset takes. (documented)"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "kind": "documented"
+              }
+            },
+            {
+              "id": "paid-before-finality",
+              "name": "paid-before-finality",
+              "shortDescription": {
+                "text": "an Ethereum asset marks an invoice paid after a count of confirmations instead of at the finalized checkpoint, when its largest invoice is above --large-payment or not given"
+              },
+              "help": {
+                "text": "Mark an Ethereum invoice of high value paid once its block is finalized (commitment \"finalized\"), or give the asset a maxAmount at or below --large-payment. (documented)"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "kind": "documented"
+              }
+            },
+            {
+              "id": "evm-paid-before-finality",
+              "name": "evm-paid-before-finality",
+              "shortDescription": {
+                "text": "an asset on Polygon PoS, Arbitrum or Base marks an invoice paid after a count of confirmations instead of at the finalized block of the network, when its largest invoice is above --large-payment or not given"
+              },
+              "help": {
+                "text": "Mark an invoice of high value paid once the network reports its block as finalized (commitment \"finalized\"), or give the asset a maxAmount at or below --large-payment. (best practice)"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "kind": "best practice"
+              }
+            },
+            {
+              "id": "token-contract-missing",
+              "name": "token-contract-missing",
+              "shortDescription": {
+                "text": "a token asset with no contract or mint address, so a token of any contract with the same symbol could pay an invoice"
+              },
+              "help": {
+                "text": "Give the contract or mint address of the token on the network, copied from the issuer's own list. (documented)"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "kind": "documented"
+              }
+            },
+            {
+              "id": "token-contract-malformed",
+              "name": "token-contract-malformed",
+              "shortDescription": {
+                "text": "a contract or mint address that is not in the form of its network: 0x and 40 hex digits on an EVM network, 32 to 44 base58 characters on Solana, T and 33 base58 characters on Tron"
+              },
+              "help": {
+                "text": "Copy the address of the token again from the issuer's own list for the network. (best practice)"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "kind": "best practice"
+              }
+            },
+            {
+              "id": "token-contract-not-official",
+              "name": "token-contract-not-official",
+              "shortDescription": {
+                "text": "a USDC asset whose contract or mint address is not the one Circle lists for the network, so payments in another token named USDC would be counted"
+              },
+              "help": {
+                "text": "Use the address Circle lists for USDC on the network (docs/inputs.md), or rename the asset when it is another token, such as a bridged USDC.e. (documented)"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "kind": "documented"
+              }
+            },
+            {
+              "id": "token-decimals-mismatch",
+              "name": "token-decimals-mismatch",
+              "shortDescription": {
+                "text": "a USDC asset whose decimals are not 6, so every amount it reads is off by a power of ten"
+              },
+              "help": {
+                "text": "Set the decimals of USDC to 6. (documented)"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "kind": "documented"
+              }
+            },
+            {
+              "id": "deposit-address-shared",
+              "name": "deposit-address-shared",
+              "shortDescription": {
+                "text": "an asset takes payments for every invoice at one shared address with no memo or payment reference, so a payment cannot be matched to its invoice"
+              },
+              "help": {
+                "text": "Issue a fresh deposit address for each invoice, or ask for a memo or reference key that names the invoice and refuse a payment without one. (best practice)"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "kind": "best practice"
+              }
+            },
+            {
+              "id": "invoice-expiry-missing",
+              "name": "invoice-expiry-missing",
+              "shortDescription": {
+                "text": "the invoice has no expiry, or one of 0 seconds, so a total priced in a national currency stays open while the rate moves"
+              },
+              "help": {
+                "text": "Give the invoice an expiry in seconds; the Bitcoin guide says processors use 10 to 20 minutes. (documented)"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "kind": "documented"
+              }
+            },
+            {
+              "id": "invoice-expiry-below-confirmation-time",
+              "name": "invoice-expiry-below-confirmation-time",
+              "shortDescription": {
+                "text": "the invoice must be paid, not only detected, before it expires (expiryRequires \"paid\", the default), and it expires sooner than an asset can reach the confirmations or commitment that mark it paid, from the time of a block of its network"
+              },
+              "help": {
+                "text": "Let the invoice run longer than the time to confirm on every network it accepts, or hold an invoice open once its payment is detected and write expiryRequires \"detected\". (documented)"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "kind": "documented"
+              }
+            },
+            {
+              "id": "rate-lock-exceeds-expiry",
+              "name": "rate-lock-exceeds-expiry",
+              "shortDescription": {
+                "text": "the quoted exchange rate is held longer than the invoice runs, so a quote outlives the invoice it was made for"
+              },
+              "help": {
+                "text": "Hold the rate no longer than the invoice runs, and quote again for a payment that comes after. (best practice)"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "kind": "best practice"
+              }
+            },
+            {
+              "id": "payment-tolerance-missing",
+              "name": "payment-tolerance-missing",
+              "shortDescription": {
+                "text": "the invoice gives no underpayment or overpayment tolerance, or a negative one, so what happens to a payment that is a little short or over is left to chance"
+              },
+              "help": {
+                "text": "Give an underpaymentTolerance and an overpaymentTolerance in percent, from 0, and say what the checkout does with a payment outside them. (best practice)"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "kind": "best practice"
+              }
+            },
+            {
+              "id": "webhook-not-https",
+              "name": "webhook-not-https",
+              "shortDescription": {
+                "text": "the webhook URL does not use https, so payment events travel in clear text and can be changed on the way"
+              },
+              "help": {
+                "text": "Give the webhook a public https URL. (documented)"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "kind": "documented"
+              }
+            },
+            {
+              "id": "webhook-unsigned",
+              "name": "webhook-unsigned",
+              "shortDescription": {
+                "text": "the webhook has no signature, or \"none\", so anyone who knows the URL can post a payment event that marks an invoice paid"
+              },
+              "help": {
+                "text": "Sign every webhook with HMAC-SHA256 under a secret named by a reference, and refuse an event whose signature does not match. (documented)"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "kind": "documented"
+              }
+            },
+            {
+              "id": "webhook-weak-signature",
+              "name": "webhook-weak-signature",
+              "shortDescription": {
+                "text": "the webhook is signed with an algorithm other than HMAC-SHA256 or HMAC-SHA512, such as HMAC-SHA1, MD5 or a hash with no key, or with one the tool does not know"
+              },
+              "help": {
+                "text": "Sign webhooks with HMAC-SHA256, and compare signatures in constant time. (documented)"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "kind": "documented"
+              }
+            },
+            {
+              "id": "webhook-replay-unprotected",
+              "name": "webhook-replay-unprotected",
+              "shortDescription": {
+                "text": "the webhook gives no timestamp tolerance, or one of 0, so a payment event captured once can be sent again later"
+              },
+              "help": {
+                "text": "Sign a timestamp with every event and refuse one older than a tolerance, such as the 5 minutes of the Stripe libraries. (documented)"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "kind": "documented"
+              }
+            },
+            {
+              "id": "webhook-idempotency-missing",
+              "name": "webhook-idempotency-missing",
+              "shortDescription": {
+                "text": "the webhook names no idempotency key, so an event delivered twice can count one payment twice"
+              },
+              "help": {
+                "text": "Name the field that identifies an event, such as event.id, record each one handled, and skip one seen before. (documented)"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "kind": "documented"
+              }
+            },
+            {
+              "id": "webhook-retry-missing",
+              "name": "webhook-retry-missing",
+              "shortDescription": {
+                "text": "the webhook has no retry policy, or one of 0 attempts, so a payment event lost to one failed delivery is never sent again"
+              },
+              "help": {
+                "text": "Retry failed deliveries with exponential back off over hours or days, and let an operator send an event again by hand. (documented)"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "kind": "documented"
+              }
+            },
+            {
+              "id": "refund-to-sender",
+              "name": "refund-to-sender",
+              "shortDescription": {
+                "text": "refunds go back to the address the payment came from, which may belong to an exchange or a shared wallet and not to the payer"
+              },
+              "help": {
+                "text": "Ask the payer for a refund address (destination \"customer-provided\") instead of sending a refund to the sending address. (documented)"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "kind": "documented"
+              }
+            },
+            {
+              "id": "refund-address-unreviewed",
+              "name": "refund-address-unreviewed",
+              "shortDescription": {
+                "text": "refunds may go to an address other than the sender with no review, so a refund can be sent to an address that someone else asked for"
+              },
+              "help": {
+                "text": "Set review to true, so that a person checks a refund to an address that is not the sender before it is sent. (best practice)"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "kind": "best practice"
+              }
+            },
+            {
+              "id": "network-not-in-table",
+              "name": "network-not-in-table",
+              "shortDescription": {
+                "text": "the network is not in the tool's table of networks, so its confirmations, finality and the form of its token addresses were not judged"
+              },
+              "help": {
+                "text": "Check by hand what marks a payment on the network as final and how its token addresses are written, or name the network as the table does (docs/inputs.md). (best practice)"
+              },
+              "defaultConfiguration": {
+                "level": "note"
+              },
+              "properties": {
+                "kind": "best practice"
+              }
+            }
+          ]
+        }
+      },
+      "artifacts": [
+        {
+          "location": {
+            "uri": "examples/good/checkout.json"
+          }
+        }
+      ],
+      "results": [
+        {
+          "ruleId": "network-not-in-table",
+          "ruleIndex": 29,
+          "level": "note",
+          "message": {
+            "text": "The network \"litecoin\" of asset LTC on litecoin is not in the tool's table (bitcoin, ethereum, polygon, arbitrum, base, solana, tron), so what marks a payment on it as final and the form of its token addresses were not judged. This is a best practice of this tool, not a rule in the pages it cites. Fix: Check by hand what marks a payment on the network as final and how its token addresses are written, or name the network as the table does (docs/inputs.md)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "examples/good/checkout.json",
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 77,
+                  "startColumn": 7
+                }
+              }
+            }
+          ],
+          "properties": {
+            "kind": "best practice",
+            "entry": "LTC on litecoin"
+          }
+        }
+      ],
+      "properties": {
+        "notice": "This report is an input to a review before the checkout goes live: not a security audit and not a guarantee that no payment will be lost or counted twice.",
+        "result": "PASS - no finding at or above error (1 info)",
+        "sources": [
+          "https://developer.bitcoin.org/devguide/payment_processing.html",
+          "https://ethereum.org/en/developers/docs/consensus-mechanisms/pos/",
+          "https://solana.com/docs/rpc",
+          "https://solana.com/developers/guides/advanced/confirmation",
+          "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+          "https://developers.circle.com/stablecoins/quickstart-transfer-10-usdc-on-solana",
+          "https://docs.stripe.com/webhooks",
+          "https://docs.github.com/en/webhooks/using-webhooks/validating-webhook-deliveries"
+        ]
+      }
+    }
+  ]
+}
